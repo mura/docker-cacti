@@ -94,7 +94,7 @@ RUN set -eux; \
 	rm -rf /var/lib/apt/lists/*
 
 COPY --chown=root:root crontab /var/spool/cron/crontabs/www-data
-COPY --chown=root:root www.conf /usr/local/php-fpm.d/
+COPY --chown=root:root www.conf /usr/local/etc/php-fpm.d/
 COPY *.sh /app/
 
 VOLUME [ "/var/www/html/cacti" ]
