@@ -3,15 +3,28 @@ FROM docker.io/php:7-fpm
 ENV CACTI_URL="https://www.cacti.net/downloads/cacti-1.2.17.tar.gz"
 ENV SPINE_URL="https://www.cacti.net/downloads/spine/cacti-spine-1.2.17.tar.gz"
 
+# persistent / runtime deps
+RUN set -eux; \
+    \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+      snmp \
+      rrdtool \
+      busybox-static \
+      procps \
+      sudo \
+    ; \
+    rm -rf /var/lib/apt/lists/*
+
 RUN set -eux; \
     \
     savedAptMark="$(apt-mark showmanual)"; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        zlib1g-dev \
-        libpng-dev \
-        libgmp-dev \
-        libldap2-dev \
+      zlib1g-dev \
+      libpng-dev \
+      libgmp-dev \
+      libldap2-dev \
     ; \
     rm -rf /var/lib/apt/lists/*; \
     \
@@ -34,19 +47,19 @@ RUN set -eux; \
     savedAptMark="$(apt-mark showmanual)"; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        autoconf \
-        automake \
-        dos2unix \
-        g++ \
-        gcc \
-        libtool \
-        m4 \
-        make \
-        help2man \
-        libsnmp-dev \
-        libssl-dev \
-        libmariadb-dev-compat \
-        libmariadb-dev \
+      autoconf \
+      automake \
+      dos2unix \
+      g++ \
+      gcc \
+      libtool \
+      m4 \
+      make \
+      help2man \
+      libsnmp-dev \
+      libssl-dev \
+      libmariadb-dev-compat \
+      libmariadb-dev \
     ; \
     rm -rf /var/lib/apt/lists/*; \
     \
@@ -57,11 +70,14 @@ RUN set -eux; \
     tar zxf cacti-spine.tar.gz -C cacti-spine --strip-components=1; \
     \
     cd cacti-spine; \
+    gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
     ./bootstrap; \
-    ./configure; \
+    ./configure \
+      --build="$gnuArch"; \
     make -j "$(nproc)"; \
     mkdir -p /app; \
     cp -p spine /app; \
+    strip --strip-all /app/spine; \
     chown root:root /app/spine; \
     chmod u+s /app/spine; \
     \
@@ -81,17 +97,6 @@ RUN set -eux; \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
 
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
-
-RUN set -eux; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends \
-		snmp \
-		rrdtool \
-        busybox-static \
-        procps \
-        sudo \
-	; \
-	rm -rf /var/lib/apt/lists/*
 
 COPY --chown=root:root crontab /var/spool/cron/crontabs/www-data
 COPY --chown=root:root www.conf /usr/local/etc/php-fpm.d/
