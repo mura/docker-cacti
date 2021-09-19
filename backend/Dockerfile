@@ -1,4 +1,4 @@
-FROM docker.io/php:7-fpm
+FROM docker.io/php:7.4-fpm-buster
 
 ENV CACTI_URL="https://files.cacti.net/cacti/linux/cacti-1.2.18.tar.gz"
 ENV SPINE_URL="https://files.cacti.net/spine/cacti-spine-1.2.18.tar.gz"
