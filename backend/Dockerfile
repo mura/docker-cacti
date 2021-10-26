@@ -1,4 +1,4 @@
-FROM docker.io/php:7.4-fpm-buster
+FROM docker.io/php:7.4-fpm-bullseye
 
 ENV CACTI_URL="https://files.cacti.net/cacti/linux/cacti-1.2.18.tar.gz"
 ENV SPINE_URL="https://files.cacti.net/spine/cacti-spine-1.2.18.tar.gz"
@@ -13,6 +13,7 @@ RUN set -eux; \
       busybox-static \
       procps \
       sudo \
+      libmariadb3 \
     ; \
     rm -rf /var/lib/apt/lists/*
 
